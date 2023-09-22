@@ -16,6 +16,6 @@ include_directories(
 )
 
 
-add_executable(time_compare examples/time_compare.cpp ikd-Tree/ikd_Tree.cpp)
+add_executable(time_compare examples/time_compare.cpp ikd-Tree/ikd-Tree/ikd_Tree.cpp)
 target_link_libraries(time_compare ${PCL_LIBRARIES} )
 
