@@ -15,13 +15,12 @@
 
 ### 1. Build
 ```bash
-cd ${Your own directory}/ikd-Tree/build
-# Example 1. Check the speed of ikd-Tree
-./ikd_tree_demo
-# Example 2. Searching-points-by-box examples
-./ikd_Tree_Search_demo
-# Example 3. An aysnc. exmaple for readers' better understanding of the principle of ikd-Tree
-./ikd_tree_async_demo
+git clone git@github.com:zhujun3753/i-octee.git
+cd i-octree
+git clone git@github.com:hku-mars/ikd-Tree.git
+bash run.sh
+python plot_time.py
+
 ```
 
 
