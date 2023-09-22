@@ -16,9 +16,15 @@
 ### 1. Build
 ```bash
 git clone git@github.com:zhujun3753/i-octee.git
+
+# For Comparison
 cd i-octree
 git clone git@github.com:hku-mars/ikd-Tree.git
+
+# Build & Run
 bash run.sh
+
+# Plot Results
 python plot_time.py
 
 ```
@@ -42,6 +48,10 @@ If you use the implementation or ideas from the [corresponding paper](https://ar
       primaryClass={cs.RO}
 }
 ```
+
+## Acknowledgement
+Thanks to Jens Behley for open-sourcing his excellent work [octree](https://github.com/jbehley/octree). 
+
 ## License
 
 The source code of ikd-Tree is released under [GPLv2](http://www.gnu.org/licenses/old-licenses/gpl-2.0.html) license. For commercial use, please contact Mr. Jun ZHU (<j-zhu20@mails.tsinghua.edu.cn>) or Dr. Tao ZHANG (<taozhang@tsinghua.edu.cn>).
