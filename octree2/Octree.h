@@ -467,6 +467,7 @@ namespace thuni
 		size_t m_bucketSize;
 		float m_minExtent;
 		bool m_downSize;
+		int dim=4;
 		size_t ordered_indies[8][7]={
 			{1, 2, 4, 3, 5, 6, 7},
 			{0, 3, 5, 2, 4, 7, 6},
@@ -486,6 +487,7 @@ namespace thuni
 		{
 			ordered = true;
 			pts_num_deleted = last_pts_num = 0;
+			dim = 4;
 		}
 
 		Octree(size_t bucketSize_, bool copyPoints_, float minExtent_)
@@ -493,6 +495,16 @@ namespace thuni
 		{
 			ordered = true;
 			pts_num_deleted = last_pts_num =0;
+			dim = 4;
+		}
+
+		Octree(size_t bucketSize_, bool copyPoints_, float minExtent_, int dim_)
+			: m_bucketSize(bucketSize_), m_minExtent(minExtent_), m_root_(0), m_downSize(false)
+		{
+			ordered = true;
+			pts_num_deleted = last_pts_num =0;
+			dim = 4;
+			if(dim_>4) dim = dim_;
 		}
 
 		~Octree(){
@@ -536,7 +548,7 @@ namespace thuni
 				const float & z = pts_[i].z;
 				if (std::isnan(x) || std::isnan(y) || std::isnan(z))
 					continue;
-				float* cloud_ptr = new float[4];
+				float* cloud_ptr = new float[dim];
 				cloud_ptr[0] = x;
 				cloud_ptr[1] = y;
 				cloud_ptr[2] = z;
@@ -609,7 +621,7 @@ namespace thuni
 				const float & z = pts_[i].z;
 				if (std::isnan(x) || std::isnan(y) || std::isnan(z))
 					continue;
-				float* cloud_ptr = new float[4];
+				float* cloud_ptr = new float[dim];
 				cloud_ptr[0] = x;
 				cloud_ptr[1] = y;
 				cloud_ptr[2] = z;
@@ -974,7 +986,7 @@ namespace thuni
 				const float & z = pts_[i].z;
 				if (std::isnan(x) || std::isnan(y) || std::isnan(z))
 					continue;
-				float* cloud_ptr = new float[4];
+				float* cloud_ptr = new float[dim];
 				cloud_ptr[0] = x;
 				cloud_ptr[1] = y;
 				cloud_ptr[2] = z;
@@ -1062,11 +1074,11 @@ namespace thuni
 			{
 				const size_t size = points.size();
 				octant->points.resize(size, 0);
-				float * continue_points = new float[size * 4];
+				float * continue_points = new float[size * dim];
 				for (size_t i = 0; i < size; ++i)
 				{
-					std::copy(points[i], points[i] + 4, continue_points+4*i);
-					octant->points[i] = continue_points+4*i;
+					std::copy(points[i], points[i] + dim, continue_points+dim*i);
+					octant->points[i] = continue_points+dim*i;
 				}
 			}
 			return octant;
@@ -1097,7 +1109,7 @@ namespace thuni
 				const float & z = pts_[i].z;
 				if (std::isnan(x) || std::isnan(y) || std::isnan(z))
 					continue;
-				float* cloud_ptr = new float[4];
+				float* cloud_ptr = new float[dim];
 				cloud_ptr[0] = x;
 				cloud_ptr[1] = y;
 				cloud_ptr[2] = z;
@@ -1227,12 +1239,12 @@ namespace thuni
 						return;
 					octant->points.insert(octant->points.end(), points.begin(), points.end());
 					const size_t size = octant->points.size();
-					float * continue_points = new float[size * 4];
+					float * continue_points = new float[size * dim];
 					float * old_points = octant->points[0];
 					for (size_t i = 0; i < size; ++i)
 					{
-						std::copy(octant->points[i], octant->points[i] + 4, continue_points+4*i);
-						octant->points[i] = continue_points+4*i;
+						std::copy(octant->points[i], octant->points[i] + dim, continue_points+dim*i);
+						octant->points[i] = continue_points+dim*i;
 					}
 					delete [] old_points;
 				}
@@ -1343,11 +1355,11 @@ namespace thuni
 			{
 				const size_t size = points.size();
 				octant->points.resize(size, 0);
-				float * continue_points = new float[size * 4];
+				float * continue_points = new float[size * dim];
 				for (size_t i = 0; i < size; ++i)
 				{
-					std::copy(points[i], points[i] + 4, continue_points+4*i);
-					octant->points[i] = continue_points+4*i;
+					std::copy(points[i], points[i] + dim, continue_points+dim*i);
+					octant->points[i] = continue_points+dim*i;
 				}
 			}
 			return octant;
@@ -1395,12 +1407,12 @@ namespace thuni
 						return;
 					octant->points.insert(octant->points.end(), points.begin(), points.end());
 					const size_t size = octant->points.size();
-					float * continue_points = new float[size * 4];
+					float * continue_points = new float[size * dim];
 					float * old_points = octant->points[0];
 					for (size_t i = 0; i < size; ++i)
 					{
-						std::copy(octant->points[i], octant->points[i] + 4, continue_points+4*i);
-						octant->points[i] = continue_points+4*i;
+						std::copy(octant->points[i], octant->points[i] + dim, continue_points+dim*i);
+						octant->points[i] = continue_points+dim*i;
 					}
 					delete [] old_points;
 				}
@@ -1768,12 +1780,12 @@ namespace thuni
 						deleted = true;
 						return;
 					}
-					float * continue_points = new float[valid_num * 4];
+					float * continue_points = new float[valid_num * dim];
 					float * old_points = octant->points[0];
 					for (size_t i = 0; i < valid_num; ++i)
 					{
-						std::copy(remainder_points[i],remainder_points[i] + 4, continue_points+4*i);
-						octant->points[i] = continue_points+4*i;
+						std::copy(remainder_points[i],remainder_points[i] + dim, continue_points+dim*i);
+						octant->points[i] = continue_points+dim*i;
 					}
 					octant->points.resize(valid_num);
 					delete [] old_points;
