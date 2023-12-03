@@ -177,15 +177,15 @@ namespace thuni
 	struct DistanceIndex
 	{
 		float dist_;
-		size_t index_;
+		float * index_;
 
 		DistanceIndex()
 		{
 			dist_ = std::numeric_limits<float>::max();
-			index_ = std::numeric_limits<size_t>::max();
+			// index_ = std::numeric_limits<size_t>::max();
 		}
 
-		DistanceIndex(float dist, size_t index) :
+		DistanceIndex(float dist, float * index) :
 			dist_(dist), index_(index)
 		{
 		}
@@ -208,7 +208,7 @@ namespace thuni
 			capacity_(capacity_)
 		{
 			// reserving capacity to prevent memory re-allocations
-			dist_index_.resize(capacity_, DistanceIndex(std::numeric_limits<float>::max(),std::numeric_limits<size_t>::max()));
+			dist_index_.resize(capacity_, DistanceIndex());
 			clear();
 		}
 		const std::vector<DistanceIndex> & get_data()
@@ -237,7 +237,7 @@ namespace thuni
 			return count_==capacity_;
 		}
 
-		void addPoint(float dist, size_t index)
+		void addPoint(float dist, float * index)
 		{
 			if (dist>=worst_distance_) return;
 
@@ -726,6 +726,38 @@ namespace thuni
 		}
 
 		template <typename PointT>
+		int32_t knnNeighbors(const PointT &  query, int k, std::vector<PointT> &resultIndices, std::vector<float> &distances)
+		{
+			if (m_root_ == 0)
+				return 0;
+			// MANUAL_HEAP<size_t> heap(k);
+			// knnNeighbors(m_root_, query, heap);
+			// std::cout<<"knnNeighbors start"<<std::endl;
+			float query_[3] = {query.x, query.y, query.z};
+			// run_details.clear();
+			// run_details.start();
+			KNNSimpleResultSet heap(k);
+			knnNeighbors(m_root_, query_, heap);
+			// run_details.end();
+			// run_details.show();
+			std::vector<DistanceIndex>  data = heap.get_data();
+			resultIndices.resize(heap.size());
+			distances.resize(heap.size());
+			for (size_t i=0;i<heap.size();i++)
+			{
+				PointT pt;
+				pt.x = data[i].index_[0];
+				pt.y = data[i].index_[1];
+				pt.z = data[i].index_[2];
+				resultIndices[i] = pt;
+				distances[i] = data[i].dist_;
+			}
+			// run_details.end();
+			// run_details.show();
+			return data.size();
+		}
+
+		template <typename PointT>
 		int32_t knnNeighbors(const PointT &  query, int k, std::vector<size_t> &resultIndices, std::vector<float> &distances)
 		{
 			if (m_root_ == 0)
@@ -745,7 +777,7 @@ namespace thuni
 			distances.resize(heap.size());
 			for (int i=0;i<heap.size();i++)
 			{
-				resultIndices[i] = data[i].index_;
+				resultIndices[i] = size_t(data[i].index_[3]);
 				distances[i] = data[i].dist_;
 			}
 			// run_details.end();
@@ -755,31 +787,31 @@ namespace thuni
 
 		template <typename PointT>
 		int32_t knnNeighbors(const PointT &  query, int k, std::vector<int> &resultIndices, std::vector<float> &distances)
-	{
-		if (m_root_ == 0)
-			return 0;
-		// MANUAL_HEAP<size_t> heap(k);
-		// knnNeighbors(m_root_, query, heap);
-		// std::cout<<"knnNeighbors start"<<std::endl;
-		float query_[3] = {query.x, query.y, query.z};
-		// run_details.clear();
-		// run_details.start();
-		KNNSimpleResultSet heap(k);
-		knnNeighbors(m_root_, query_, heap);
-		// run_details.end();
-		// run_details.show();
-		std::vector<DistanceIndex>  data = heap.get_data();
-		resultIndices.resize(heap.size());
-		distances.resize(heap.size());
-		for (int i=0;i<heap.size();i++)
 		{
-			resultIndices[i] = int(data[i].index_);
-			distances[i] = data[i].dist_;
+			if (m_root_ == 0)
+				return 0;
+			// MANUAL_HEAP<size_t> heap(k);
+			// knnNeighbors(m_root_, query, heap);
+			// std::cout<<"knnNeighbors start"<<std::endl;
+			float query_[3] = {query.x, query.y, query.z};
+			// run_details.clear();
+			// run_details.start();
+			KNNSimpleResultSet heap(k);
+			knnNeighbors(m_root_, query_, heap);
+			// run_details.end();
+			// run_details.show();
+			std::vector<DistanceIndex>  data = heap.get_data();
+			resultIndices.resize(heap.size());
+			distances.resize(heap.size());
+			for (int i=0;i<heap.size();i++)
+			{
+				resultIndices[i] = int(data[i].index_[3]);
+				distances[i] = data[i].dist_;
+			}
+			// run_details.end();
+			// run_details.show();
+			return data.size();
 		}
-		// run_details.end();
-		// run_details.show();
-		return data.size();
-	}
 
 		void boxWiseDelete(const BoxDeleteType & box_range, bool clear_data)
 		{
@@ -1525,7 +1557,7 @@ namespace thuni
 						dist += diff*diff;
 					}
 					if(dist<heap.worstDist())
-						heap.addPoint(dist, size_t(p[3]));
+						heap.addPoint(dist, octant->points[i]);
 				}
 				// run_details.one_path = false;
 				// run_details.pts_n += size;
