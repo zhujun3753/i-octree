@@ -904,6 +904,26 @@ namespace thuni
 			}
 		}
 
+		template <typename PointT, typename ContainerT>
+		ContainerT get_data()
+		{
+			std::vector<Octant *> nodes;
+			ContainerT pts;
+			get_nodes(m_root_, nodes);
+			for(auto octant : nodes)
+			{
+				for(auto p: octant->points)
+				{
+					PointT pt;
+					pt.x = p[0];
+					pt.y = p[1];
+					pt.z = p[2];
+					pts.push_back(pt);
+				}
+			}
+			return pts;
+		}
+
 		void write_node_info_2_txt(float min_extent = 0)
 		{
 			if (m_root_ == 0)
