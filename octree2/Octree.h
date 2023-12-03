@@ -1298,7 +1298,7 @@ namespace thuni
 
 	protected:
 		Octant *m_root_;
-		size_t last_pts_num, pts_num_deleted; // 主要为了确定每个点的索引
+		size_t last_pts_num, pts_num_deleted; // 主要为了确定每个点的索引 
 
 		Octree(Octree &);
 
