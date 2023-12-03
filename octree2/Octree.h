@@ -709,7 +709,13 @@ namespace thuni
 				return;
 			float sqrRadius = radius*radius; // "squared" radius
 			float query_[3] = {query.x, query.y, query.z};
-			radiusNeighbors(m_root_, query_, radius, sqrRadius, resultIndices);
+			std::vector<float*> points_ptr;
+			radiusNeighbors(m_root_, query_, radius, sqrRadius, points_ptr);
+			resultIndices.resize(points_ptr.size());
+			for (size_t i=0;i<points_ptr.size();i++)
+			{
+				resultIndices[i] = size_t(points_ptr[i][3]);
+			}
 		}
 
 		template <typename PointT>
@@ -721,8 +727,37 @@ namespace thuni
 				return;
 			float sqrRadius = radius*radius; // "squared" radius
 			float query_[3] = {query.x, query.y, query.z};
-			radiusNeighbors(m_root_, query_, radius, sqrRadius, resultIndices, distances);
+			std::vector<float*> points_ptr;
+			radiusNeighbors(m_root_, query_, radius, sqrRadius, points_ptr, distances);
 			// radiusNeighbors2(m_root_, query_, sqrRadius, resultIndices, distances);
+			resultIndices.resize(points_ptr.size());
+			for (size_t i=0;i<points_ptr.size();i++)
+			{
+				resultIndices[i] = size_t(points_ptr[i][3]);
+			}
+		}
+
+		template <typename PointT>
+		void radiusNeighbors(const PointT &  query, float radius, std::vector<PointT> &resultIndices, std::vector<float> &distances)
+		{
+			resultIndices.clear();
+			distances.clear();
+			if (m_root_ == 0)
+				return;
+			float sqrRadius = radius*radius; // "squared" radius
+			float query_[3] = {query.x, query.y, query.z};
+			std::vector<float*> points_ptr;
+			radiusNeighbors(m_root_, query_, radius, sqrRadius, points_ptr, distances);
+			// radiusNeighbors2(m_root_, query_, sqrRadius, resultIndices, distances);
+			resultIndices.resize(points_ptr.size());
+			for (size_t i=0;i<resultIndices.size();i++)
+			{
+				PointT pt;
+				pt.x = points_ptr[i][0];
+				pt.y = points_ptr[i][1];
+				pt.z = points_ptr[i][2];
+				resultIndices[i] = pt;
+			}
 		}
 
 		template <typename PointT>
@@ -1381,7 +1416,7 @@ namespace thuni
 			}
 		}
 
-		void radiusNeighbors(const Octant *octant, const float * query, float radius, float sqrRadius, std::vector<size_t> &resultIndices)
+		void radiusNeighbors(const Octant *octant, const float * query, float radius, float sqrRadius, std::vector<float*> &resultIndices)
 		{
 			if (!octant->isActive)
 				return;
@@ -1399,8 +1434,8 @@ namespace thuni
 					for (size_t i = 0; i < size; ++i)
 					{
 						// const float * p = ordered? candidate_octants[k]->ordered_points[i] : candidate_octants[k]->points[i];
-						const float * p = candidate_octants[k]->points[i];
-						resultIndices[result_size+i] = size_t(p[3]);
+						// const float * p = candidate_octants[k]->points[i];
+						resultIndices[result_size+i] = candidate_octants[k]->points[i];
 					}
 				}
 				return;
@@ -1419,7 +1454,7 @@ namespace thuni
 						dist += diff*diff;
 					}
 					if (dist < sqrRadius)
-						resultIndices.push_back(size_t(p[3]));
+						resultIndices.push_back(octant->points[i]);
 				}
 				return;
 			}
@@ -1433,7 +1468,7 @@ namespace thuni
 			}
 		}
 
-		void radiusNeighbors(const Octant *octant, const float * query, float radius, float sqrRadius, std::vector<size_t> &resultIndices, std::vector<float> &distances)
+		void radiusNeighbors(const Octant *octant, const float * query, float radius, float sqrRadius, std::vector<float*> &resultIndices, std::vector<float> &distances)
 		{
 			if (!octant->isActive)
 				return;
@@ -1456,7 +1491,7 @@ namespace thuni
 							dist += diff*diff;
 						}
 						distances.push_back(dist);
-						resultIndices[result_size+i] = size_t(p[3]);
+						resultIndices[result_size+i] = candidate_octants[k]->points[i];
 					}
 				}
 				return;
@@ -1475,7 +1510,7 @@ namespace thuni
 					}
 					if (dist < sqrRadius)
 					{
-						resultIndices.push_back(size_t(p[3]));
+						resultIndices.push_back(octant->points[i]);
 						distances.push_back(dist);
 					}
 				}
