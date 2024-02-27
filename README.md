@@ -1,4 +1,4 @@
-# [i-Octree: A Fast, Lightweight,  and Dynamic  Octree for Proximity  Search(Accepted by ICRA2024)](https://arxiv.org/abs/2309.08315)
+# [i-Octree: A Fast, Lightweight,  and Dynamic  Octree for Proximity  Search(Accepted by ICRA 2024)](https://arxiv.org/abs/2309.08315)
 
 **i-Octree** is a dynamic octree data structure that supports both fast nearest neighbor search and real-time dynamic updates, such as point insertion, deletion, and on-tree down-sampling. The i-Octree is built upon a leaf-based octree and has two key features: a local spatially continuous storing strategy that allows for fast access to points while minimizing memory usage, and local on-tree updates that significantly reduce computation time compared to existing static or dynamic tree structures. 
 
