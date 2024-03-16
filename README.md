@@ -50,8 +50,11 @@ If you use the implementation or ideas from the [corresponding paper](https://ar
 ```
 
 ## Acknowledgement
+
 Thanks to Jens Behley for open-sourcing his excellent work [octree](https://github.com/jbehley/octree). 
+This project uses "ikd-Tree" by Cai, Yixi for comparison purposes. The code from "ikd-Tree" is licensed under the GPL-2.0. You can find the original project and its source code [here](https://github.com/hku-mars/ikd-Tree).
 
 ## License
 
-The source code of ikd-Tree is released under [GPLv2](http://www.gnu.org/licenses/old-licenses/gpl-2.0.html) license. For commercial use, please contact Mr. Jun ZHU (<j-zhu20@mails.tsinghua.edu.cn>) or Dr. Tao ZHANG (<taozhang@tsinghua.edu.cn>).
+The source code of i-Octree is released under [GPLv2](http://www.gnu.org/licenses/old-licenses/gpl-2.0.html) license. For commercial use, please contact Mr. Jun ZHU (<j-zhu20@mails.tsinghua.edu.cn>) or Dr. Tao ZHANG (<taozhang@tsinghua.edu.cn>).
+
