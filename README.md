@@ -9,12 +9,42 @@
 - Fast radius neighbors search.
 - Fully templated for maximal flexibility to support arbitrary point representations & containers.
 
+## News 📰
+### [2024.03.16] - Feature Enhancement
+- Enhanced the implementation of the i-Octree with new functionalities and updated the Python bindings accordingly.
 
+## Python Bindings Test
+### 1. Requirement
+To compile, we require `Eigen`, `C++17`, and `torch`.
+### 2. Run
+```bash
+git clone git@github.com:zhujun3753/i-octee.git
+
+cd octree_map
+# Update the `CMAKE_PREFIX_PATH` variable in `CMakeLists.txt` to reflect your own path settings.!!!!
+bash build.sh
+
+cd ..
+python demo.py
+
+```
+### 3. Results
+```shell
+==============================
+This is a debug print in OctreeMap C++!
+==============================
+num: 100
+attr_n: 6
+after filter num: 95
+octree_feature.get_size(): 85
+tensor([0.5879, 0.8644, 0.9247, 0.9912, 0.9457, 0.2752, 0.5103, 0.7180, 0.9304])
+tensor([0.5879, 0.8644, 0.9247, 0.9912, 0.9457, 0.2752, 0.5103, 0.7180, 0.9304])
+```
 
 ## Run Randomized Data Experiments
 
 ### 1. Build
-```bash
+```shell
 git clone git@github.com:zhujun3753/i-octee.git
 
 # For Comparison
