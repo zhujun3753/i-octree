@@ -52,6 +52,7 @@ If you use the implementation or ideas from the [corresponding paper](https://ar
 ## Acknowledgement
 
 Thanks to Jens Behley for open-sourcing his excellent work [octree](https://github.com/jbehley/octree). 
+
 This project uses "ikd-Tree" by Cai, Yixi for comparison purposes. The code from "ikd-Tree" is licensed under the GPL-2.0. You can find the original project and its source code [here](https://github.com/hku-mars/ikd-Tree).
 
 ## License
