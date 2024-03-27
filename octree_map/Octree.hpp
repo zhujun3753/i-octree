@@ -1119,6 +1119,29 @@ namespace thuni
 			}
 		}
 
+		template <typename EigenPointT>
+		int32_t radiusNeighbors_eigen(const EigenPointT &  query, float radius, std::vector<std::vector<float>> &resultIndices, std::vector<float> &distances)
+		{
+			if (m_root_ == 0)
+				return 0;
+			float query_[3] = {(float)query[0], (float)query[1], (float)query[2]};
+			float sqrRadius = radius*radius; // "squared" radius
+			std::vector<float*> points_ptr;
+			radiusNeighbors(m_root_, query_, radius, sqrRadius, points_ptr, distances);
+			resultIndices.resize(points_ptr.size());
+			for (size_t i=0; i<resultIndices.size(); i++)
+			{
+				std::vector<float> pt;
+				for(int j=0; j<dim; j++)
+				{
+					if(j==3) continue;
+					pt.push_back(points_ptr[i][j]);
+				}
+				resultIndices[i] = pt;
+			}
+			return points_ptr.size();
+		}
+
 		template <typename PointT>
 		int32_t knnNeighbors(const PointT &  query, int k, std::vector<PointT> &resultIndices, std::vector<float> &distances)
 		{

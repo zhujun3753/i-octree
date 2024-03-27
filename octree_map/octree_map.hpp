@@ -24,6 +24,7 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include <tuple>
 
 #include <torch/custom_class.h>
 #include <torch/script.h>
@@ -95,6 +96,11 @@ public:
 		octree_feature.clear();
 	}
 
+	void clear()
+	{
+		octree_feature.clear();
+	}
+
 	// 近邻搜索
 	torch::Tensor nearest_search(torch::Tensor pts_attr, torch::Tensor params)
 	{
@@ -131,6 +137,95 @@ public:
 			}
 		}
 		return data_tensor;
+	}
+
+	// KNN
+	std::tuple<torch::Tensor, torch::Tensor> knn_nearest_search(torch::Tensor pts_attr, int64_t k)
+	{
+		if(octree_feature.size()<1)
+		{
+			std::cout<<"Empty octree!\n";
+			return std::tuple<torch::Tensor, torch::Tensor>();
+		}
+		int num = pts_attr.size(0);
+		auto pts_attr_acces = pts_attr.accessor<float,2>();
+		if(pts_attr.size(1)<3)
+		{
+			std::cout<<"Must be 3D pts!\n";
+			return std::tuple<torch::Tensor, torch::Tensor>();
+		}
+		int attr_n = octree_feature.get_attr_n();
+		torch::Tensor data_tensor = torch::zeros({num, k, attr_n}, torch::dtype(torch::kFloat32));
+		torch::Tensor dist_tensor = torch::zeros({num, k, 1}, torch::dtype(torch::kFloat32));
+		auto data_tensor_acces = data_tensor.accessor<float,3>();
+		auto dist_tensor_acces = dist_tensor.accessor<float,3>();
+		for(int i=0; i<num; i++)
+		{
+			std::vector<float> query;
+			for(int j=0; j<3; j++)
+				query.push_back(pts_attr_acces[i][j]);
+			std::vector<std::vector<float>> resultIndices;
+			std::vector<float> distances;
+			octree_feature.knnNeighbors_eigen(query, k, resultIndices, distances);
+			if(distances.size()>0)
+			{
+				for(int ki=0; ki<distances.size() && ki<k; ki++)
+				{
+					for(int j=0; j<attr_n; j++)
+					{
+						data_tensor_acces[i][ki][j] = resultIndices[ki][j];
+					}
+					dist_tensor_acces[i][ki][0] = distances[ki];
+				}
+			}
+		}
+		return std::make_tuple(data_tensor, dist_tensor);
+	}
+
+	// radiusNeighbors
+	std::vector<std::tuple<torch::Tensor, torch::Tensor>> radius_neighbors(torch::Tensor pts_attr, double radius)
+	{
+		if(octree_feature.size()<1)
+		{
+			std::cout<<"Empty octree!\n";
+			return std::vector<std::tuple<torch::Tensor, torch::Tensor>>();
+		}
+		int num = pts_attr.size(0);
+		auto pts_attr_acces = pts_attr.accessor<float,2>();
+		if(pts_attr.size(1)<3)
+		{
+			std::cout<<"Must be 3D pts!\n";
+			return std::vector<std::tuple<torch::Tensor, torch::Tensor>>();
+		}
+		std::vector<std::tuple<torch::Tensor, torch::Tensor>> results;
+		int attr_n = octree_feature.get_attr_n();
+		for(int i=0; i<num; i++)
+		{
+			std::vector<float> query;
+			for(int j=0; j<3; j++)
+				query.push_back(pts_attr_acces[i][j]);
+			std::vector<std::vector<float>> resultIndices;
+			std::vector<float> distances;
+			octree_feature.radiusNeighbors_eigen(query, radius, resultIndices, distances);
+			int k = distances.size();
+			torch::Tensor data_tensor = torch::zeros({k, attr_n}, torch::dtype(torch::kFloat32));
+			torch::Tensor dist_tensor = torch::zeros({k, 1}, torch::dtype(torch::kFloat32));
+			auto data_tensor_acces = data_tensor.accessor<float,2>();
+			auto dist_tensor_acces = dist_tensor.accessor<float,2>();
+			if(k>0)
+			{
+				for(int ki=0; ki<k; ki++)
+				{
+					for(int j=0; j<attr_n; j++)
+					{
+						data_tensor_acces[ki][j] = resultIndices[ki][j];
+					}
+					dist_tensor_acces[ki][0] = distances[ki];
+				}
+			}
+			results.push_back(std::make_tuple(data_tensor, dist_tensor));
+		}
+		return results;
 	}
 
 	//添加点数据
