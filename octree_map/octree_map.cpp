@@ -32,6 +32,8 @@ TORCH_LIBRARY(octree_map, m)
         .def("clear", &OctreeMap::clear)
 		.def("get_data", &OctreeMap::get_data)
         .def("add_pts_with_attr_cpu", &OctreeMap::add_pts_with_attr_cpu)
+        .def("add_pts_with_attr_cpu2", &OctreeMap::add_pts_with_attr_cpu2)
 		.def("debug_print", &OctreeMap::debug_print)
+		.def("get_size", &OctreeMap::get_size)
     ;
 }

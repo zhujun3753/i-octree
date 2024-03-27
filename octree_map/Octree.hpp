@@ -801,6 +801,7 @@ namespace thuni
 				cloud_index++;
 			}
 			last_pts_num = cloud_index;
+			
 			points.resize(cloud_index); // 删除多余元素
 			float ctr[3] = {min[0], min[1], min[2]};
 			float maxextent = 0.5f * (max[0] - min[0]);
@@ -817,6 +818,7 @@ namespace thuni
 			// 		<<"max: "<<max[0]<<", "<<max[1]<<", "<<max[2]<<", "
 			// 		<<std::endl;
 			// m_root_ = createOctant(ctr[0], ctr[1], ctr[2], maxextent, 0, N - 1, N);
+			// std::cout<<"cloud_index: "<<cloud_index<<", pts_num: "<<pts_num<<", points.size(): "<<points.size()<<std::endl;
 			m_root_ = createOctant(ctr[0], ctr[1], ctr[2], maxextent, points);
 			// std::cout<<"createOctant success!"<<std::endl;
 			for (size_t i = 0; i < points.size(); ++i)
@@ -1369,12 +1371,15 @@ namespace thuni
 
 		size_t get_size()
 		{
+			// return construct_num;
+			// return m_root_->size();
 			size_t actual_size = 0;
 			std::vector<Octant *> nodes;
 			get_nodes(m_root_, nodes);
-			for(auto octant : nodes)
+			// std::cout<<"nodes.size(): "<<nodes.size()<<std::endl;
+			for(int i=0; i<nodes.size(); i++)
 			{
-				actual_size += octant->points.size();
+				actual_size += nodes[i]->points.size();
 			}
 			return actual_size;
 		}
@@ -1382,6 +1387,7 @@ namespace thuni
 	protected:
 		Octant *m_root_;
 		size_t last_pts_num, pts_num_deleted; // 主要为了确定每个点的索引
+		size_t construct_num = 0;
 
 		Octree(Octree &);
 
@@ -1426,7 +1432,11 @@ namespace thuni
 			{
 				size_t size = points.size();
 				if (m_downSize && extent <= 2 * m_minExtent && size > m_bucketSize / 8)
+				{
 					size = m_bucketSize;
+					// std::cout<<"m_downSize: "<<m_downSize<<std::endl;
+				}
+				// construct_num += size;
 				octant->points.resize(size, 0);
 				float * continue_points = new float[size * dim];
 				for (size_t i = 0; i < size; ++i)
@@ -1478,6 +1488,7 @@ namespace thuni
 					//* 如果有下采样且满足条件，直接不添加
 					if (m_downSize && extent <= 2 * m_minExtent && octant->points.size() > m_bucketSize / 8)
 						return;
+					// construct_num += points.size();
 					octant->points.insert(octant->points.end(), points.begin(), points.end());
 					const size_t size = octant->points.size();
 					float * continue_points = new float[size * dim];

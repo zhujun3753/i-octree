@@ -88,7 +88,7 @@ public:
 	{
 		octree_feature.set_min_extent(voxel_size/2);
 		octree_feature.set_bucket_size(1);
-		octree_feature.set_down_size();
+		// octree_feature.set_down_size();
 	}
 
 	~OctreeMap()
@@ -238,8 +238,8 @@ public:
 		auto pts_attr_acces = pts_attr.accessor<float,2>();
 		// torch::Tensor params_cpu = params.to(torch::kCPU);
 		auto params_acces = params.accessor<float,1>();
-		std::cout<<"num: "<<num<<std::endl;
-		std::cout<<"attr_n: "<<attr_n<<std::endl;
+		// std::cout<<"num: "<<num<<std::endl;
+		// std::cout<<"attr_n: "<<attr_n<<std::endl;
 		if(attr_n<0)
 		{
 			std::cout<<"Must be 3D pts!\n";
@@ -248,7 +248,7 @@ public:
 		std::vector<int> pc_ids_filtered;
 		pc_voxel_filter(pts_attr_acces, num, pc_ids_filtered, voxel_size);
 		num = pc_ids_filtered.size();
-		std::cout<<"after filter num: "<<num<<std::endl;
+		// std::cout<<"after filter num: "<<num<<std::endl;
 		std::vector<std::vector<float>> pts(num), extra_attr(num);
 		for(int i=0; i<num; i++)
 		{
@@ -261,8 +261,42 @@ public:
 			octree_feature.initialize_with_attr(pts, extra_attr);
 		else
 			octree_feature.update_with_attr(pts, extra_attr);
-		std::cout<<"octree_feature.get_size(): "<<octree_feature.get_size()<<std::endl;
+		// std::cout<<"octree_feature.get_size(): "<<octree_feature.get_size()<<std::endl;
 	}
+
+	//添加点数据
+	void add_pts_with_attr_cpu2(torch::Tensor pts_attr, torch::Tensor params)
+	{
+		// params[0] min_depth
+		// std::cout<<"pts_attr.type(): "<<pts_attr.type()<<std::endl; // CPUFloatType
+		int num = pts_attr.size(0);
+		const int attr_n = pts_attr.size(1)-3;
+		auto pts_attr_acces = pts_attr.accessor<float,2>();
+		// torch::Tensor params_cpu = params.to(torch::kCPU);
+		auto params_acces = params.accessor<float,1>();
+		// std::cout<<"num: "<<num<<std::endl;
+		// std::cout<<"attr_n: "<<attr_n<<std::endl;
+		if(attr_n<0)
+		{
+			std::cout<<"Must be 3D pts!\n";
+			return;
+		}
+		std::vector<std::vector<float>> pts(num), extra_attr(num);
+		for(int i=0; i<num; i++)
+		{
+			for(int j=0; j<3; j++)
+				pts[i].push_back(pts_attr_acces[i][j]);
+			for(int j=0; j<attr_n; j++)
+				extra_attr[i].push_back(pts_attr_acces[i][j+3]);
+		}
+		if(octree_feature.size()==0)
+			octree_feature.initialize_with_attr(pts, extra_attr);
+		else
+			octree_feature.update_with_attr(pts, extra_attr);
+		// std::cout<<"octree_feature.get_size(): "<<octree_feature.get_size()<<std::endl;
+	}
+
+	int64_t get_size(){return octree_feature.get_size();}
 
 	torch::Tensor get_data()
 	{
