@@ -388,7 +388,7 @@ namespace thuni
 					if(child[i] != 0)
 						delete child[i];
 				}
-				delete child;
+				delete[] child;
 				child = nullptr;
 			}
 			else
@@ -575,6 +575,7 @@ namespace thuni
 			points.resize(cloud_index); // 删除多余元素
 			float ctr[3] = {min[0], min[1], min[2]};
 			float maxextent = 0.5f * (max[0] - min[0]);
+			maxextent = std::max(maxextent, 0.01f);
 			ctr[0] += maxextent;
 			for (size_t i = 1; i < 3; ++i)
 			{
@@ -1013,6 +1014,7 @@ namespace thuni
 			points.resize(cloud_index); // 删除多余元素
 			float ctr[3] = {min[0], min[1], min[2]};
 			float maxextent = 0.5f * (max[0] - min[0]);
+			maxextent = std::max(maxextent, 0.01f);
 			ctr[0] += maxextent;
 			for (size_t i = 1; i < 3; ++i)
 			{
